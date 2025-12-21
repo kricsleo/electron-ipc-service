@@ -1,4 +1,4 @@
-import { createIpcServices, IpcService } from 'electron-ipc-fn'
+import { createIpcServices, IpcService } from 'electron-ipc-service'
 
 class ServiceA implements IpcService {
   namespace = 'a' as const

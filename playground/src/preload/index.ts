@@ -1,3 +1,3 @@
-import { initializeIpcBridge } from 'electron-ipc-fn/preload'
+import { initializeIpcBridge } from 'electron-ipc-service/preload'
 
 initializeIpcBridge()

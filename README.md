@@ -5,7 +5,7 @@ Make Electron's IPC calls elegant and simple. Mostly, enjoying full type-safety!
 ## Install
 
 ```bash
-pnpm i electron-ipc-fn
+pnpm i electron-ipc-service
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ pnpm i electron-ipc-fn
 ### In Main
 
 ```ts
-import { createIpcServices, IpcService } from 'electron-ipc-fn'
+import { createIpcServices, IpcService } from 'electron-ipc-service'
 
 // 1. Define your custom service to be called through IPC by the renderer
 class ServiceA implements IpcService {
@@ -55,7 +55,7 @@ export type IpcServices = typeof ipcServices
 ### In Preload Script
 
 ```ts
-import { initializeIpcBridge } from 'electron-ipc-fn/preload'
+import { initializeIpcBridge } from 'electron-ipc-service/preload'
 
 // 3. Setup the IPC channel bridge to connect the "main"/"renderer" processes
 initializeIpcBridge()
@@ -64,7 +64,7 @@ initializeIpcBridge()
 ### In Renderer
 
 ```ts
-import { createIpcClient } from 'electron-ipc-fn/renderer'
+import { createIpcClient } from 'electron-ipc-service/renderer'
 import type { IpcServices } from '<path_to_your_main_ipc_declaration_file.ts>'
 
 // 4. Setup the IPC client

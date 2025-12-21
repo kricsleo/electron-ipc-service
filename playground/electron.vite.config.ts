@@ -6,7 +6,7 @@ export default defineConfig({
   main: {
     build: {
       externalizeDeps: {
-        exclude: ['electron-ipc-fn'], // <- 将相关模块添加到 'exclude' 选项中
+        exclude: ['electron-ipc-service'], // <- 将相关模块添加到 'exclude' 选项中
       },
     },
   },

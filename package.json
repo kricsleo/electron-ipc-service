@@ -1,15 +1,15 @@
 {
-  "name": "electron-ipc-fn",
+  "name": "electron-ipc-service",
   "type": "module",
   "version": "0.0.0",
   "packageManager": "pnpm@10.26.1",
   "description": "Type-safe Electron IPC functional call",
   "author": "Kricsleo <kricsleo@163.com>",
   "license": "MIT",
-  "homepage": "https://github.com/kricsleo/electron-ipc-fn#readme",
+  "homepage": "https://github.com/kricsleo/electron-ipc-service#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kricsleo/electron-ipc-fn.git"
+    "url": "git+https://github.com/kricsleo/electron-ipc-service.git"
   },
   "keywords": [
     "electron",
