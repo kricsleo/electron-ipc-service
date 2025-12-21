@@ -17,8 +17,9 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      preload: join(import.meta.dirname, '../preload/index.js'),
+      sandbox: true,
+      contextIsolation: true,
     },
   })
 
@@ -36,7 +37,7 @@ function createWindow(): void {
   if (is.dev && process.env.ELECTRON_RENDERER_URL) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(join(import.meta.dirname, '../renderer/index.html'))
   }
 }
 

@@ -18,11 +18,34 @@
     "type-safe"
   ],
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": {
+      "import": "./dist/main.mjs",
+      "require": "./dist/main.cjs"
+    },
+    "./preload": {
+      "import": "./dist/preload.mjs",
+      "require": "./dist/preload.cjs"
+    },
+    "./renderer": {
+      "import": "./dist/renderer.mjs",
+      "require": "./dist/renderer.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/main.cjs",
+  "module": "./dist/main.mjs",
+  "types": "./dist/main.d.cts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=16.4.0"
   },

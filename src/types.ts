@@ -27,11 +27,11 @@ export type IpcServices<T extends readonly IpcServiceConstructor[]> = {
   ]: InstanceType<K>
 }
 
-export type IpcServiceClient<T> = {
-  [K in keyof T]: IpcServiceMethods<T[K]>
+export type IpcClient<T> = {
+  [K in keyof T]: IpcClientService<T[K]>
 }
 
-type IpcServiceMethods<T> = {
+type IpcClientService<T> = {
   [K in keyof T as T[K] extends (...args: any[]) => any
     ? K
     : never
@@ -40,9 +40,9 @@ type IpcServiceMethods<T> = {
     : never
 }
 
-export interface IpcServiceMessage {
-  serviceName: string
-  methodName: string
+export interface IpcMessage {
+  service: string
+  method: string
   args: any[]
 }
 

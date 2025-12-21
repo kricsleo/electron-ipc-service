@@ -1,3 +1,6 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
 packages:
   - playground
 
@@ -7,7 +10,3 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - electron
-
-shellEmulator: true
-
-trustPolicy: no-downgrade

@@ -1,7 +1,10 @@
 import type { IpcMainInvokeEvent } from 'electron'
-import type { IpcContext, IpcServiceConstructor, IpcServiceMessage, IpcServices } from './types'
+import type { IpcContext, IpcMessage, IpcServiceConstructor, IpcServices } from './types'
 import { ipcMain } from 'electron'
-import { IPC_SERVICE_CHANNEL, ipcContextStorage } from './context'
+import { IPC_SERVICE_CHANNEL } from './constants'
+import { ipcContextStorage } from './context'
+
+export { IpcService } from './types'
 
 export function createIpcServices<T extends readonly IpcServiceConstructor[]>(Services: T): IpcServices<T> {
   const services = {} as any
@@ -19,12 +22,12 @@ export function createIpcServices<T extends readonly IpcServiceConstructor[]>(Se
 }
 
 export function initializeIpcServices(services: IpcServices<any>): void {
-  ipcMain.handle(IPC_SERVICE_CHANNEL, async (event: IpcMainInvokeEvent, message: IpcServiceMessage) => {
+  ipcMain.handle(IPC_SERVICE_CHANNEL, async (event: IpcMainInvokeEvent, message: IpcMessage) => {
     const context: IpcContext = { sender: event.sender, event }
 
     return await ipcContextStorage.run(context, () => {
       // @ts-expect-error - dynamic access
-      return services[message.serviceName][message.methodName](...message.args)
+      return services[message.service][message.method](...message.args)
     })
   })
 }

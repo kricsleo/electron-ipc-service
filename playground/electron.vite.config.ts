@@ -3,10 +3,16 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'electron-vite'
 
 export default defineConfig({
-  main: {},
+  main: {
+    build: {
+      externalizeDeps: {
+        exclude: ['electron-ipc-fn'], // <- 将相关模块添加到 'exclude' 选项中
+      },
+    },
+  },
   preload: {
     build: {
-
+      externalizeDeps: false,
     },
   },
   renderer: {

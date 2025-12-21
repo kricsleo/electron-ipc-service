@@ -1,31 +1,31 @@
-import type { IpcServiceClient, IpcServices } from './types'
-import { IPC_SERVICE_CHANNEL } from './context'
+import type { IpcClient, IpcMessage, IpcServices } from './types'
+import { IPC_SERVICE_CHANNEL, IPC_SERVICE_FN } from './constants'
 
-export function createIpcClient<T extends IpcServices<any>>(): IpcServiceClient<T> {
+export function createIpcClient<T extends IpcServices<any>>(): IpcClient<T> {
   // @ts-expect-error injected by preload script
-  if (!window.__electron_ipc_fn) {
-    throw new Error('IPC channel is not available. Make sure to call `initializeIpcChannel()` first in the preload script.')
+  if (!window[IPC_SERVICE_FN]) {
+    throw new Error('IPC channel is not available. Make sure to call `initializeIpcBridge()` first in the preload script.')
   }
 
   const serviceCache = new Map<string, unknown>()
 
   return new Proxy({} as any, {
-    get(target, serviceName: string) {
-      let service = serviceCache.get(serviceName)
+    get(target, service: string) {
+      let serviceProxy = serviceCache.get(service)
 
-      if (!service) {
-        service = new Proxy({}, {
-          get: (target, methodName: string) => (...args: any[]) =>
+      if (!serviceProxy) {
+        serviceProxy = new Proxy({}, {
+          get: (target, method: string) => (...args: any[]) =>
             // @ts-expect-error injected by preload script
-            window.__electron_ipc_fn(
+            window[IPC_SERVICE_FN](
               IPC_SERVICE_CHANNEL,
-              { serviceName, methodName, args },
+              { service, method, args } as IpcMessage,
             ),
         })
-        serviceCache.set(serviceName, service)
+        serviceCache.set(service, serviceProxy)
       }
 
-      return service
+      return serviceProxy
     },
   })
 }

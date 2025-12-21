@@ -1,8 +1,6 @@
 import type { IpcContext } from './types'
 import { AsyncLocalStorage } from 'node:async_hooks'
 
-export const IPC_SERVICE_CHANNEL = '__ELECTRON_IPC_FN_SERVICE_CHANNEL__'
-
 export const ipcContextStorage: AsyncLocalStorage<IpcContext> = /* @__PURE__ */ new AsyncLocalStorage()
 
 export function useIpcContext(): IpcContext {
