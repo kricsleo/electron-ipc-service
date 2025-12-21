@@ -29,8 +29,7 @@
     "./renderer": {
       "import": "./dist/renderer.mjs",
       "require": "./dist/renderer.cjs"
-    },
-    "./package.json": "./package.json"
+    }
   },
   "main": "./dist/main.cjs",
   "module": "./dist/main.mjs",
