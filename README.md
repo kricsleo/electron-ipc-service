@@ -13,7 +13,7 @@ pnpm i electron-ipc-service
 ### In Main
 
 ```ts
-import { createIpcServices, IpcService } from 'electron-ipc-service'
+import { createIpcServices, initializeIpcServices, IpcService } from 'electron-ipc-service'
 
 // 1. Define your custom service to be called through IPC by the renderer
 class ServiceA implements IpcService {
