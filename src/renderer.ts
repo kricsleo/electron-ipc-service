@@ -4,7 +4,7 @@ import { IPC_SERVICE_CHANNEL, IPC_SERVICE_FN } from './constants'
 export function createIpcClient<T extends IpcServices<any>>(): IpcClient<T> {
   // @ts-expect-error injected by preload script
   if (!window[IPC_SERVICE_FN]) {
-    throw new Error('IPC channel is not available. Make sure to call `initializeIpcBridge()` first in the preload script.')
+    throw new Error('IPC channel is not available. Make sure to call `initializeIpcBridge()` in the preload script.')
   }
 
   const serviceCache = new Map<string, unknown>()

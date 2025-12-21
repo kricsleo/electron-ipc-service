@@ -1,26 +1,26 @@
 import { createIpcServices, IpcService } from 'electron-ipc-fn'
 
 class ServiceA implements IpcService {
-  name = 'ServiceA' as const
+  namespace = 'a' as const
   foo() {
-    return `${this.name} - foo`
+    return `${this.namespace} - foo`
   }
 
   async bar() {
     await new Promise(resolve => setTimeout(resolve, 100))
-    return `${this.name} - bar`
+    return `${this.namespace} - bar`
   }
 }
 
 class ServiceB extends IpcService {
-  name = 'ServiceB' as const
+  namespace = 'b' as const
   foo() {
-    return `${this.name} - foo`
+    return `${this.namespace} - foo`
   }
 
   async bar() {
     await new Promise(resolve => setTimeout(resolve, 100))
-    return `${this.name} - bar`
+    return `${this.namespace} - bar`
   }
 }
 

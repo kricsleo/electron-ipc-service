@@ -11,11 +11,10 @@ export function createIpcServices<T extends readonly IpcServiceConstructor[]>(Se
 
   for (const Service of Services) {
     const service = new Service()
-    const serviceName = service.name
-    if (services[serviceName]) {
-      throw new Error(`Found duplicate services: ${serviceName}`)
+    if (services[service.namespace]) {
+      throw new Error(`Found duplicate services: ${service.namespace}`)
     }
-    services[serviceName] = service
+    services[service.namespace] = service
   }
 
   return services

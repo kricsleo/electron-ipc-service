@@ -9,7 +9,7 @@ export abstract class IpcService {
    *
    * @see https://github.com/microsoft/TypeScript/issues/34516
    */
-  abstract readonly name: string
+  abstract readonly namespace: string
 }
 
 export interface IpcServiceConstructor {
@@ -21,9 +21,9 @@ export type IpcServices<T extends readonly IpcServiceConstructor[]> = {
   // or a loose string.
   // 'ANY_LITERAL_STRING' extends 'serviceName' -> false
   // 'ANY_LITERAL_STRING' extends string -> true
-  [K in T[number] as 'ANY_LITERAL_STRING' extends InstanceType<K>['name']
-    ? 'ERROR_SERVICE_NAME_MUST_BE_DECLARED_AS_CONST'
-    : InstanceType<K>['name']
+  [K in T[number] as 'ANY_LITERAL_STRING' extends InstanceType<K>['namespace']
+    ? 'ERROR_SERVICE_NAMESPACE_MUST_BE_DECLARED_AS_CONST'
+    : InstanceType<K>['namespace']
   ]: InstanceType<K>
 }
 
