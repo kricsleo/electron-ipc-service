@@ -1,10 +1,7 @@
-import type { IpcMainInvokeEvent, WebContents } from 'electron'
+import type { IpcContext } from './types'
 import { AsyncLocalStorage } from 'node:async_hooks'
 
-export interface IpcContext {
-  sender: WebContents
-  event: IpcMainInvokeEvent
-}
+export const IPC_SERVICE_CHANNEL = '__ELECTRON_IPC_FN_SERVICE_CHANNEL__'
 
 export const ipcContextStorage: AsyncLocalStorage<IpcContext> = /* @__PURE__ */ new AsyncLocalStorage()
 

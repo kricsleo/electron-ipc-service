@@ -1,0 +1,13 @@
+packages:
+  - playground
+
+ignoredBuiltDependencies:
+  - electron-winstaller
+  - esbuild
+
+onlyBuiltDependencies:
+  - electron
+
+shellEmulator: true
+
+trustPolicy: no-downgrade

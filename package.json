@@ -18,11 +18,11 @@
     "type-safe"
   ],
   "exports": {
-    "./main": "./dist/main.mjs",
-    "./preload": "./dist/preload.mjs",
-    "./renderer": "./dist/renderer.mjs",
-    "./package.json": "./package.json"
+    ".": "./dist/index.mjs"
   },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "engines": {
     "node": ">=16.4.0"
   },

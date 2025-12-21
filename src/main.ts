@@ -1,31 +1,14 @@
 import type { IpcMainInvokeEvent } from 'electron'
-import type { IpcServiceMessage } from './channel'
-import type { IpcContext } from './context'
+import type { IpcContext, IpcServiceConstructor, IpcServiceMessage, IpcServices } from './types'
 import { ipcMain } from 'electron'
-import { IPC_SERVICE_CHANNEL } from './channel'
-import { ipcContextStorage } from './context'
+import { IPC_SERVICE_CHANNEL, ipcContextStorage } from './context'
 
-/* @__NO_SIDE_EFFECTS__ */
-export abstract class IpcService {
-  static readonly name: string
-}
-
-// Helper type for createServices return type
-export type IpcServices<T extends readonly IpcServiceConstructor[]> = {
-  [K in T[number] as K['name']]: InstanceType<K>
-}
-
-interface IpcServiceConstructor {
-  new (): IpcService
-  readonly name: string
-}
-
-export function createIpcServices<T extends IpcServiceConstructor[]>(Services: T): IpcServices<T> {
+export function createIpcServices<T extends readonly IpcServiceConstructor[]>(Services: T): IpcServices<T> {
   const services = {} as any
 
   for (const Service of Services) {
     const service = new Service()
-    const serviceName = Service.name
+    const serviceName = service.name
     if (services[serviceName]) {
       throw new Error(`Found duplicate services: ${serviceName}`)
     }
@@ -40,6 +23,7 @@ export function initializeIpcServices(services: IpcServices<any>): void {
     const context: IpcContext = { sender: event.sender, event }
 
     return await ipcContextStorage.run(context, () => {
+      // @ts-expect-error - dynamic access
       return services[message.serviceName][message.methodName](...message.args)
     })
   })
