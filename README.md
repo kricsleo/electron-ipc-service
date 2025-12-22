@@ -1,8 +1,31 @@
-> Most of the code is forked from https://github.com/Innei/electron-ipc-decorator/<br>
-> 2025 © Innei, Released under the MIT License.<br>
-> [Personal Website](https://innei.in/) · GitHub [@Innei](https://github.com/innei/)
+<h3 align="center">electron-ipc-service</h3>
+<p align="center">
+<a href="https://www.npmjs.com/package/electron-ipc-service">
+  <img src="https://img.shields.io/npm/v/electron-ipc-service?style=flat&colorA=18181B&colorB=F0DB4F" />
+</a>
 
-Make Electron's IPC calls elegant and simple. Mostly, enjoying full type-safety! 🎩
+<a href="https://www.npmjs.com/package/electron-ipc-service">
+  <img src="https://img.shields.io/npm/types/electron-ipc-service?style=flat&colorA=18181B&colorB=F0DB4F" />
+</a>
+
+<a href="https://bundlephobia.com/package/electron-ipc-service">
+  <img src="https://img.shields.io/bundlephobia/minzip/electron-ipc-service?style=flat&colorA=18181B&colorB=F0DB4F" />
+</a>
+
+<a href="https://github.com/kricsleo/electron-ipc-service/blob/master/LICENSE">
+  <img src="https://img.shields.io/github/license/kricsleo/electron-ipc-service.svg?style=flat&colorA=18181B&colorB=F0DB4F" />
+</a>
+
+</p>
+
+Make Electron's IPC calls elegant and simple with just function calls.<br>
+Mostly, enjoying full type-safety! 🎩
+
+## Features
+
+- 🚀 Supertiny — less than 1kB (gzipped)
+- 🧹 Superclean — no dependencies
+- 💪🏻 Full type safety, with all types defined only once
 
 ## Install
 
@@ -84,3 +107,16 @@ await ipc.app.getAppVersion() // => "0.0.1"
 await ipc.app.search('foo') // => { matches: ... }
 await ipc.util.bar() // => "util - bar"
 ```
+
+## Thanks
+
+Most of the code is forked from https://github.com/Innei/electron-ipc-decorator/<br>
+
+> 2025 © Innei, Released under the MIT License.<br>
+> [Personal Website](https://innei.in/) · GitHub [@Innei](https://github.com/innei/)
+
+Thanks for all the hard works ❤️
+
+## License
+
+❤️ [MIT](./LICENSE) © [Kricsleo](https://github.com/kricsleo)
