@@ -1,29 +1,37 @@
-import { createIpcServices, IpcService } from 'electron-ipc-service'
+import { app } from 'electron'
+import { initializeIpcServices, IpcService, useIpcContext } from 'electron-ipc-service'
 
-class ServiceA implements IpcService {
-  namespace = 'a' as const
-  foo() {
-    return `${this.namespace} - foo`
+class AppService extends IpcService {
+  static readonly namespace = 'app'
+
+  getAppVersion() {
+    return app.getVersion()
   }
 
-  async bar() {
-    await new Promise(resolve => setTimeout(resolve, 100))
-    return `${this.namespace} - bar`
+  async search(input: string) {
+    // Context is automatically injected via AsyncLocalStorage
+    // Access it using useIpcContext() when needed
+    const { sender } = useIpcContext()
+
+    const { promise, resolve } = Promise.withResolvers<Electron.Result | null>()
+    let requestId = -1
+    sender.once('found-in-page', (_, result) => {
+      resolve(result.requestId === requestId ? result : null)
+    })
+    requestId = sender.findInPage(input)
+    return promise
   }
 }
 
-class ServiceB extends IpcService {
-  namespace = 'b' as const
-  foo() {
-    return `${this.namespace} - foo`
-  }
-
-  async bar() {
-    await new Promise(resolve => setTimeout(resolve, 100))
-    return `${this.namespace} - bar`
+class UtilService extends IpcService {
+  static readonly namespace = 'util'
+  bar() {
+    return `${UtilService.namespace} - bar`
   }
 }
 
-export const ipcServices = createIpcServices([ServiceA, ServiceB])
+export function initialize() {
+  return initializeIpcServices([AppService, UtilService])
+}
 
-export type IpcServices = typeof ipcServices
+export type IpcServices = ReturnType<typeof initialize>

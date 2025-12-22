@@ -1,4 +1,6 @@
-> Most of the code is forked from https://github.com/Innei/electron-ipc-decorator/
+> Most of the code is forked from https://github.com/Innei/electron-ipc-decorator/<br>
+> 2025 © Innei, Released under the MIT License.<br>
+> [Personal Website](https://innei.in/) · GitHub [@Innei](https://github.com/innei/)
 
 Make Electron's IPC calls elegant and simple. Mostly, enjoying full type-safety! 🎩
 
@@ -13,42 +15,49 @@ pnpm i electron-ipc-service
 ### In Main
 
 ```ts
-import { createIpcServices, initializeIpcServices, IpcService } from 'electron-ipc-service'
+import { app } from 'electron'
+import { initializeIpcServices, IpcService, useIpcContext } from 'electron-ipc-service'
 
-// 1. Define your custom service to be called through IPC by the renderer
-class ServiceA implements IpcService {
-  // "namespace" must be declared "as const",
+// 1. Define your custom service that extends "IpcService"
+class AppService extends IpcService {
+  // 1.1. Define a unique "namespace" for each service,
   // all service methods will be available under this namespace.
-  namespace = 'a' as const
+  static readonly namespace = 'app'
 
-  foo() {
-    return `${this.namespace} - foo`
+  // 1.2. Implement your custom functions, which can be sync or async,
+  // but the results will always be a Promise when called from the renderer.
+  getAppVersion() {
+    return app.getVersion()
   }
 
-  async bar() {
-    await new Promise(resolve => setTimeout(resolve, 100))
-    return `${this.namespace} - bar`
-  }
-}
+  async search(input: string) {
+    // 1.3. Access ipc context with `useIpcContext()` when needed,
+    // it's automatically injected via AsyncLocalStorage
+    const { sender } = useIpcContext()
 
-// Define another custom service
-class ServiceB extends IpcService {
-  namespace = 'b' as const
-
-  foo() {
-    return `${this.namespace} - foo`
-  }
-
-  async bar() {
-    await new Promise(resolve => setTimeout(resolve, 100))
-    return `${this.namespace} - bar`
+    const { promise, resolve } = Promise.withResolvers<Electron.Result | null>()
+    let requestId = -1
+    sender.once('found-in-page', (_, result) => {
+      resolve(result.requestId === requestId ? result : null)
+    })
+    requestId = sender.findInPage(input)
+    return promise
   }
 }
 
-const ipcServices = createIpcServices([ServiceA, ServiceB])
-initializeIpcServices(ipcServices)
+// Define other custom services
+class UtilService extends IpcService {
+  static readonly namespace = 'util'
+  bar() {
+    return `${UtilService.namespace} - bar`
+  }
+}
 
-// 2. Export this type for use by the renderer's `createIpcClient` to enable full type-safety.
+// 2. Initialize ipc services
+const ipcServices = initializeIpcServices([AppService, UtilService])
+
+// 2.1. Export the ipc service types for use by the renderer's `createIpcClient`,
+// enabling full type safety!
 export type IpcServices = typeof ipcServices
 ```
 
@@ -57,7 +66,7 @@ export type IpcServices = typeof ipcServices
 ```ts
 import { initializeIpcBridge } from 'electron-ipc-service/preload'
 
-// 3. Setup the IPC channel bridge to connect the "main"/"renderer" processes
+// 3. Setup the ipc channel bridge to connect the "main"/"renderer" processes
 initializeIpcBridge()
 ```
 
@@ -67,12 +76,11 @@ initializeIpcBridge()
 import { createIpcClient } from 'electron-ipc-service/renderer'
 import type { IpcServices } from '<path_to_your_main_ipc_declaration_file.ts>'
 
-// 4. Setup the IPC client
+// 4. Setup the ipc client
 export const ipc = createIpcClient<IpcServices>()
 
-// Then you can call ipc methods with full type-safety
-await ipc.a.foo() // => "a - foo"
-await ipc.a.bar() // => "a - bar"
-await ipc.b.foo() // => "b - foo"
-await ipc.b.bar() // => "b - bar"
+// Then you can call ipc methods with full type-safety 🎉
+await ipc.app.getAppVersion() // => "0.0.1"
+await ipc.app.search('foo') // => { matches: ... }
+await ipc.util.bar() // => "util - bar"
 ```

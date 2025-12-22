@@ -2,23 +2,18 @@
 import { ipc } from './ipc';
 
 async function fooA() {
-  const result = ipc.a.foo();
+  const result = ipc.app.getAppVersion();
   const resultType = result instanceof Promise ? 'Promise' : typeof result;
   window.alert(`result: ${result}, type: ${resultType}, resolved: ${await result}`);
 }
 async function barA() {
-  const result = ipc.a.bar();
+  const result = ipc.app.search('bar');
   const resultType = result instanceof Promise ? 'Promise' : typeof result;
   window.alert(`result: ${result}, type: ${resultType}, resolved: ${await result}`);
 }
 
-async function fooB() {
-  const result = ipc.b.foo();
-  const resultType = result instanceof Promise ? 'Promise' : typeof result;
-  window.alert(`result: ${result}, type: ${resultType}, resolved: ${await result}`);
-}
 async function barB() {
-  const result = ipc.b.bar();
+  const result = ipc.util.bar();
   const resultType = result instanceof Promise ? 'Promise' : typeof result;
   window.alert(`result: ${result}, type: ${resultType}, resolved: ${await result}`);
 }
@@ -33,7 +28,6 @@ async function barB() {
     <hr>
 
     <h1>service B</h1>
-    <button @click="fooB">foo</button>
-    <button @click="barB">foo</button>
+    <button @click="barB">bar</button>
   </main>
 </template>
