@@ -14,25 +14,26 @@
   "keywords": [
     "electron",
     "ipc",
+    "functional",
     "typescript",
     "type-safe"
   ],
   "exports": {
     ".": {
-      "import": "./dist/main.mjs",
+      "import": "./dist/main.js",
       "require": "./dist/main.cjs"
     },
     "./preload": {
-      "import": "./dist/preload.mjs",
+      "import": "./dist/preload.js",
       "require": "./dist/preload.cjs"
     },
     "./renderer": {
-      "import": "./dist/renderer.mjs",
+      "import": "./dist/renderer.js",
       "require": "./dist/renderer.cjs"
     }
   },
   "main": "./dist/main.cjs",
-  "module": "./dist/main.mjs",
+  "module": "./dist/main.js",
   "types": "./dist/main.d.cts",
   "typesVersions": {
     "*": {

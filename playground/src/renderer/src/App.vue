@@ -9,7 +9,7 @@ async function fooA() {
 async function barA() {
   const result = ipc.app.search('bar');
   const resultType = result instanceof Promise ? 'Promise' : typeof result;
-  window.alert(`result: ${result}, type: ${resultType}, resolved: ${await result}`);
+  window.alert(`result: ${result}, type: ${resultType}, resolved: ${JSON.stringify(await result)}`);
 }
 
 async function barB() {
