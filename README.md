@@ -1,10 +1,10 @@
 <h3 align="center">electron-ipc-service</h3>
 <p align="center">
-<a href="https://www.npmjs.com/package/electron-ipc-service">
+<a href="https://npmx.dev/package/electron-ipc-service">
   <img src="https://img.shields.io/npm/v/electron-ipc-service?style=flat&colorA=18181B&colorB=F0DB4F" />
 </a>
 
-<a href="https://www.npmjs.com/package/electron-ipc-service">
+<a href="https://npmx.dev/package/electron-ipc-service">
   <img src="https://img.shields.io/npm/types/electron-ipc-service?style=flat&colorA=18181B&colorB=F0DB4F" />
 </a>
 
@@ -23,7 +23,7 @@ Mostly, enjoying full type-safety! 🎩
 
 ## Features
 
-- 🚀 Supertiny — less than 1kB (gzipped)
+- 🚀 Supertiny — less than **1kB** (gzipped)
 - 🧹 Superclean — no dependencies
 - 💪🏻 Full type safety, with all types defined only once
 
@@ -35,7 +35,7 @@ pnpm i electron-ipc-service
 
 ## Usage
 
-### 1. Main Process — Define & Register Services
+### 1. Main Process — Register Main Services & Call Renderer Services
 
 ```ts
 import { app } from 'electron'
@@ -78,13 +78,13 @@ class UtilService extends IpcService {
 
 // Initialize main services (renderer can call these)
 const ipcMainServices = initializeIpcMainServices([AppService, UtilService])
-
 // Export the type for the renderer's `createIpcRendererClient`
 export type IpcMainServices = typeof ipcMainServices
 
-// Create a client to broadcast to all renderer windows (fire-and-forget)
-const rendererClient = createMainIpcClient<IpcRendererServices>()
-rendererClient.ui.showToast('Hello from main!')
+// Create a client to broadcast to all renderer windows
+const ipcMainClient = createMainIpcClient<IpcRendererServices>()
+// Since it's a broadcast, there's no response to the calls
+ipcMainClient.ui.showToast('Hello from main!')
 ```
 
 ### 2. Preload Script — Bridge Main & Renderer
@@ -95,18 +95,11 @@ import { initializeIpcPreload } from 'electron-ipc-service/preload'
 initializeIpcPreload()
 ```
 
-### 3. Renderer — Call Main Services & Register Renderer Services
+### 3. Renderer — Register Renderer Services & Call Main Services
 
 ```ts
 import { createIpcRendererClient, initializeIpcRendererServices, IpcService } from 'electron-ipc-service/renderer'
-import type { IpcMainServices } from '<path_to_your_main_ipc_file>'
-
-// Create a client to call main services (returns Promises)
-export const mainClient = createIpcRendererClient<IpcMainServices>()
-
-await mainClient.app.getAppVersion() // => "0.0.1"
-await mainClient.app.search('foo') // => { matches: ... }
-await mainClient.util.bar() // => "util - bar"
+import type { IpcMainServices } from '<path_to_above_main_ipc_file>'
 
 // Define renderer services that main can broadcast to
 class UiService extends IpcService {
@@ -117,19 +110,21 @@ class UiService extends IpcService {
   }
 }
 
-// Initialize renderer services (main can call these via `createMainIpcClient`)
-export const ipcRendererServices = initializeIpcRendererServices([UiService])
+// Initialize renderer services (main can call these)
+const ipcRendererServices = initializeIpcRendererServices([UiService])
 export type IpcRendererServices = typeof ipcRendererServices
+
+// Create a client to call main services (returns Promises)
+export const ipcRendererClient = createIpcRendererClient<IpcMainServices>()
+// Since it's one-on-one call, you can get the response to your calls.
+await ipcRendererClient.app.getAppVersion() // => "0.0.1"
+await ipcRendererClient.app.search('foo') // => { matches: ... }
+await ipcRendererClient.util.bar() // => "util - bar"
 ```
 
 ## Thanks
 
-Most of the code is forked from https://github.com/Innei/electron-ipc-decorator/<br>
-
-> 2025 © Innei, Released under the MIT License.<br>
-> [Personal Website](https://innei.in/) · GitHub [@Innei](https://github.com/innei/)
-
-Thanks for all the hard works ❤️
+Inspired by [electron-ipc-decorator](https://github.com/Innei/electron-ipc-decorator/), thanks for the brilliant design!
 
 ## License
 

@@ -14,7 +14,7 @@
   "keywords": [
     "electron",
     "ipc",
-    "functional",
+    "function",
     "typescript",
     "type-safe"
   ],
