@@ -1,7 +1,7 @@
 import type { IpcMessage, IpcRendererClient, IpcServiceConstructor, IpcServices } from './types'
 import { IPC_MAIN_SERVICE_CHANNEL, IPC_MAIN_SERVICE_FN, IPC_RENDERER_SERVICE_FN } from './constants'
 
-export { IpcService } from './types'
+export * from './types'
 
 export function createIpcRendererClient<T extends IpcServices<any>>(): IpcRendererClient<T> {
   // @ts-expect-error injected by preload script

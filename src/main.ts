@@ -45,7 +45,7 @@ function createIpcMainServices<T extends readonly IpcServiceConstructor[]>(Servi
   return services
 }
 
-export function createMainIpcClient<T extends IpcServices<any>>(): IpcMainClient<T> {
+export function createIpcMainClient<T extends IpcServices<any>>(): IpcMainClient<T> {
   const serviceCache = new Map<string, unknown>()
 
   return new Proxy({} as any, {

@@ -46,7 +46,7 @@ import type { IpcRendererServices } from '<path_to_your_renderer_ipc_file>'
 class AppService extends IpcService {
   // Define a unique "namespace" for each service,
   // all service methods will be available under this namespace.
-  static readonly namespace = 'app'
+  static override readonly namespace = 'app'
 
   // Implement your custom functions, which can be sync or async,
   // but the results will always be a Promise when called from the renderer.
@@ -70,7 +70,7 @@ class AppService extends IpcService {
 }
 
 class UtilService extends IpcService {
-  static readonly namespace = 'util'
+  static override readonly namespace = 'util'
   bar() {
     return `${UtilService.namespace} - bar`
   }
@@ -110,7 +110,7 @@ await mainClient.util.bar() // => "util - bar"
 
 // Define renderer services that main can broadcast to
 class UiService extends IpcService {
-  static readonly namespace = 'ui'
+  static override readonly namespace = 'ui'
 
   showToast(message: string) {
     console.log('Toast:', message)

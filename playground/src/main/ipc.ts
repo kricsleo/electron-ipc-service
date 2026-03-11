@@ -5,7 +5,7 @@ import type { RendererIpcServices } from '../renderer/src/ipc'
 const rendererClient = createMainIpcClient<RendererIpcServices>()
 
 class AppService extends IpcService {
-  static readonly namespace = 'app'
+  static override readonly namespace = 'app'
 
   getAppVersion() {
     return app.getVersion()
@@ -25,14 +25,14 @@ class AppService extends IpcService {
 }
 
 class UtilService extends IpcService {
-  static readonly namespace = 'util'
+  static override readonly namespace = 'util'
   bar() {
     return `${UtilService.namespace} - bar`
   }
 }
 
 class NotifyService extends IpcService {
-  static readonly namespace = 'notify'
+  static override readonly namespace = 'notify'
 
   broadcast(message: string) {
     rendererClient.ui.showToast(message)
