@@ -22,11 +22,25 @@ export type IpcServices<T extends readonly IpcServiceConstructor[]> = {
   ]: InstanceType<K>
 }
 
-export type IpcClient<T> = {
-  [K in keyof T]: IpcClientService<T[K]>
+export type IpcMainClient<T> = {
+  [K in keyof T]: IpcMainClientService<T[K]>
 }
 
-type IpcClientService<T> = {
+type IpcMainClientService<T> = {
+  [K in keyof T as T[K] extends (...args: any[]) => any
+    ? K
+    : never
+  ]:
+  T[K] extends (...args: infer Args) => any
+    ? (...args: Args) => never
+    : never
+}
+
+export type IpcRendererClient<T> = {
+  [K in keyof T]: IpcRendererClientService<T[K]>
+}
+
+type IpcRendererClientService<T> = {
   [K in keyof T as T[K] extends (...args: any[]) => any
     ? K
     : never
@@ -42,7 +56,7 @@ export interface IpcMessage {
   args: any[]
 }
 
-export interface IpcContext {
+export interface IpcMainContext {
   sender: WebContents
   event: IpcMainInvokeEvent
 }

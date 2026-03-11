@@ -1,5 +1,8 @@
 import { app } from 'electron'
-import { initializeIpcServices, IpcService, useIpcContext } from 'electron-ipc-service'
+import { createMainIpcClient, initializeIpcMainServices, IpcService, useIpcMainContext } from 'electron-ipc-service'
+import type { RendererIpcServices } from '../renderer/src/ipc'
+
+const rendererClient = createMainIpcClient<RendererIpcServices>()
 
 class AppService extends IpcService {
   static readonly namespace = 'app'
@@ -9,9 +12,7 @@ class AppService extends IpcService {
   }
 
   async search(input: string) {
-    // Context is automatically injected via AsyncLocalStorage
-    // Access it using useIpcContext() when needed
-    const { sender } = useIpcContext()
+    const { sender } = useIpcMainContext()
 
     const { promise, resolve } = Promise.withResolvers<Electron.Result | null>()
     let requestId = -1
@@ -30,8 +31,24 @@ class UtilService extends IpcService {
   }
 }
 
+class NotifyService extends IpcService {
+  static readonly namespace = 'notify'
+
+  broadcast(message: string) {
+    rendererClient.ui.showToast(message)
+    return 'pk'
+  }
+}
+
 export function initialize() {
-  return initializeIpcServices([AppService, UtilService])
+  const services = initializeIpcMainServices([AppService, UtilService, NotifyService])
+
+  // Broadcast to all renderer windows after a short delay (demo)
+  setTimeout(() => {
+    rendererClient.ui.showToast('Hello from main process!')
+  }, 3000)
+
+  return services
 }
 
 export type IpcServices = ReturnType<typeof initialize>

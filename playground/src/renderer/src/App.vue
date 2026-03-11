@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ipc } from './ipc';
+import { ipc, toastMessages } from './ipc';
 
 async function fooA() {
   const result = ipc.app.getAppVersion();
@@ -17,6 +17,10 @@ async function barB() {
   const resultType = result instanceof Promise ? 'Promise' : typeof result;
   window.alert(`result: ${result}, type: ${resultType}, resolved: ${await result}`);
 }
+
+function broadcast() {
+  ipc.notify.broadcast('Broadcast triggered by renderer!');
+}
 </script>
 
 <template>
@@ -29,5 +33,18 @@ async function barB() {
 
     <h1>service B</h1>
     <button @click="barB">bar</button>
+
+    <hr>
+
+    <h1>Broadcast</h1>
+    <button @click="broadcast">Broadcast from Main</button>
+
+    <hr>
+
+    <h1>Messages</h1>
+    <ul>
+      <li v-for="(msg, i) in toastMessages" :key="i">{{ msg }}</li>
+    </ul>
+    <p v-if="!toastMessages.length" style="color: #888;">No messages yet. Wait 3s for auto-broadcast or click the button above.</p>
   </main>
 </template>

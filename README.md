@@ -35,28 +35,29 @@ pnpm i electron-ipc-service
 
 ## Usage
 
-### In Main
+### 1. Main Process — Define & Register Services
 
 ```ts
 import { app } from 'electron'
-import { initializeIpcServices, IpcService, useIpcContext } from 'electron-ipc-service'
+import { createMainIpcClient, initializeIpcMainServices, IpcService, useIpcMainContext } from 'electron-ipc-service'
+import type { IpcRendererServices } from '<path_to_your_renderer_ipc_file>'
 
-// 1. Define your custom service that extends "IpcService"
+// Define your custom service that extends "IpcService"
 class AppService extends IpcService {
-  // 1.1. Define a unique "namespace" for each service,
+  // Define a unique "namespace" for each service,
   // all service methods will be available under this namespace.
   static readonly namespace = 'app'
 
-  // 1.2. Implement your custom functions, which can be sync or async,
+  // Implement your custom functions, which can be sync or async,
   // but the results will always be a Promise when called from the renderer.
   getAppVersion() {
     return app.getVersion()
   }
 
   async search(input: string) {
-    // 1.3. Access ipc context with `useIpcContext()` when needed,
+    // Access ipc context with `useIpcMainContext()` when needed,
     // it's automatically injected via AsyncLocalStorage
-    const { sender } = useIpcContext()
+    const { sender } = useIpcMainContext()
 
     const { promise, resolve } = Promise.withResolvers<Electron.Result | null>()
     let requestId = -1
@@ -68,7 +69,6 @@ class AppService extends IpcService {
   }
 }
 
-// Define other custom services
 class UtilService extends IpcService {
   static readonly namespace = 'util'
   bar() {
@@ -76,36 +76,50 @@ class UtilService extends IpcService {
   }
 }
 
-// 2. Initialize ipc services
-const ipcServices = initializeIpcServices([AppService, UtilService])
+// Initialize main services (renderer can call these)
+const ipcMainServices = initializeIpcMainServices([AppService, UtilService])
 
-// 2.1. Export the ipc service types for use by the renderer's `createIpcClient`,
-// enabling full type safety!
-export type IpcServices = typeof ipcServices
+// Export the type for the renderer's `createIpcRendererClient`
+export type IpcMainServices = typeof ipcMainServices
+
+// Create a client to broadcast to all renderer windows (fire-and-forget)
+const rendererClient = createMainIpcClient<IpcRendererServices>()
+rendererClient.ui.showToast('Hello from main!')
 ```
 
-### In Preload Script
+### 2. Preload Script — Bridge Main & Renderer
 
 ```ts
-import { initializeIpcBridge } from 'electron-ipc-service/preload'
+import { initializeIpcPreload } from 'electron-ipc-service/preload'
 
-// 3. Setup the ipc channel bridge to connect the "main"/"renderer" processes
-initializeIpcBridge()
+initializeIpcPreload()
 ```
 
-### In Renderer
+### 3. Renderer — Call Main Services & Register Renderer Services
 
 ```ts
-import { createIpcClient } from 'electron-ipc-service/renderer'
-import type { IpcServices } from '<path_to_your_main_ipc_declaration_file.ts>'
+import { createIpcRendererClient, initializeIpcRendererServices, IpcService } from 'electron-ipc-service/renderer'
+import type { IpcMainServices } from '<path_to_your_main_ipc_file>'
 
-// 4. Setup the ipc client
-export const ipc = createIpcClient<IpcServices>()
+// Create a client to call main services (returns Promises)
+export const mainClient = createIpcRendererClient<IpcMainServices>()
 
-// Then you can call ipc methods with full type-safety 🎉
-await ipc.app.getAppVersion() // => "0.0.1"
-await ipc.app.search('foo') // => { matches: ... }
-await ipc.util.bar() // => "util - bar"
+await mainClient.app.getAppVersion() // => "0.0.1"
+await mainClient.app.search('foo') // => { matches: ... }
+await mainClient.util.bar() // => "util - bar"
+
+// Define renderer services that main can broadcast to
+class UiService extends IpcService {
+  static readonly namespace = 'ui'
+
+  showToast(message: string) {
+    console.log('Toast:', message)
+  }
+}
+
+// Initialize renderer services (main can call these via `createMainIpcClient`)
+export const ipcRendererServices = initializeIpcRendererServices([UiService])
+export type IpcRendererServices = typeof ipcRendererServices
 ```
 
 ## Thanks

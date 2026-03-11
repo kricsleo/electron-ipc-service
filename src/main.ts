@@ -1,20 +1,25 @@
 import type { IpcMainInvokeEvent } from 'electron'
-import type { IpcContext, IpcMessage, IpcServiceConstructor, IpcServices } from './types'
-import { ipcMain } from 'electron'
-import { IPC_SERVICE_CHANNEL } from './constants'
-import { ipcContextStorage } from './context'
+import type {
+  IpcMainClient,
+  IpcMainContext,
+  IpcMessage,
+  IpcServiceConstructor,
+  IpcServices,
+} from './types'
+import { BrowserWindow, ipcMain } from 'electron'
+import { IPC_MAIN_SERVICE_CHANNEL, IPC_RENDERER_SERVICE_CHANNEL } from './constants'
+import { ipcMainContextStorage } from './context'
 
-export { useIpcContext } from './context'
-export { IpcService } from './types'
-export type { IpcContext, IpcMessage } from './types'
+export { useIpcMainContext } from './context'
+export * from './types'
 
-export function initializeIpcServices<T extends readonly IpcServiceConstructor[]>(Services: T): IpcServices<T> {
-  const services = createIpcServices(Services)
+export function initializeIpcMainServices<T extends readonly IpcServiceConstructor[]>(Services: T): IpcServices<T> {
+  const services = createIpcMainServices(Services)
 
-  ipcMain.handle(IPC_SERVICE_CHANNEL, async (event: IpcMainInvokeEvent, message: IpcMessage) => {
-    const context: IpcContext = { sender: event.sender, event }
+  ipcMain.handle(IPC_MAIN_SERVICE_CHANNEL, async (event: IpcMainInvokeEvent, message: IpcMessage) => {
+    const context: IpcMainContext = { sender: event.sender, event }
 
-    return await ipcContextStorage.run(context, () => {
+    return await ipcMainContextStorage.run(context, () => {
       // @ts-expect-error service/method should exist
       return services[message.service][message.method](...message.args)
     })
@@ -23,7 +28,7 @@ export function initializeIpcServices<T extends readonly IpcServiceConstructor[]
   return services
 }
 
-function createIpcServices<T extends readonly IpcServiceConstructor[]>(Services: T): IpcServices<T> {
+function createIpcMainServices<T extends readonly IpcServiceConstructor[]>(Services: T): IpcServices<T> {
   const services = {} as any
 
   for (const Service of Services) {
@@ -38,4 +43,26 @@ function createIpcServices<T extends readonly IpcServiceConstructor[]>(Services:
   }
 
   return services
+}
+
+export function createMainIpcClient<T extends IpcServices<any>>(): IpcMainClient<T> {
+  const serviceCache = new Map<string, unknown>()
+
+  return new Proxy({} as any, {
+    get(_, service: string) {
+      let serviceProxy = serviceCache.get(service)
+      if (!serviceProxy) {
+        serviceProxy = new Proxy({}, {
+          get: (_, method: string) => (...args: any[]) => {
+            const message: IpcMessage = { service, method, args }
+            for (const win of BrowserWindow.getAllWindows()) {
+              win.webContents.send(IPC_RENDERER_SERVICE_CHANNEL, message)
+            }
+          },
+        })
+        serviceCache.set(service, serviceProxy)
+      }
+      return serviceProxy
+    },
+  })
 }
